@@ -1,0 +1,21 @@
+# Core data stack (align with Python 3.14 environment)
+pandas>=3.0.6,<4
+numpy>=2.5.3,<3
+scikit-learn>=1.9.1,<2
+matplotlib>=3.11.2,<4
+seaborn>=0.13.2,<1
+
+# Database
+SQLAlchemy>=2.0.54,<2.2
+pyodbc>=5.3.0
+
+# Config and testing
+python-dotenv>=1.0.0
+pytest>=8.0.0
+pytest-cov>=5.0.0
+
+# Later phases (listed for one-shot install; unused in Phase 2)
+streamlit>=1.64.0
+plotly>=6.0.0
+# xgboost>=2.1.0
+shap>=0.53.0

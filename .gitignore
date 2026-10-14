@@ -1,0 +1,53 @@
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+
+# Raw and processed customer data
+data/raw/
+data/processed/
+*.csv
+!docs/**/*.csv
+
+# Original download at project root (keep local, never commit)
+/WA_Fn-UseC_-Telco-Customer-Churn.csv
+
+# Artifacts and logs
+artifacts/
+logs/
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+*.egg-info/
+dist/
+build/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Model binaries (may embed training data)
+*.pkl
+*.joblib
+*.pickle
