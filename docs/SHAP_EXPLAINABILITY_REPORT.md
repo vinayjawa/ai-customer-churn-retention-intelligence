@@ -72,9 +72,9 @@ API: `churn_intel.explain.local.explain_customer_record`
 ## Reproduction
 
 ```powershell
-cd "E:\Projects\AI-Powered Customer Churn Prediction & Retention Intelligence"
+cd <project-root>
 $env:PYTHONPATH = "src"
 python -m churn_intel.explain
 ```
 
-Requires `shap>=0.53.0` (installed: **0.53.0** on Python 3.14).
+Requires `shap>=0.53.0` (see `requirements.txt`).

@@ -1,7 +1,7 @@
 # Dataset Profile — IBM Telco Customer Churn
 
 **Inspection date:** 2026-10-14  
-**Project root:** `E:\Projects\AI-Powered Customer Churn Prediction & Retention Intelligence`  
+**Project root:** `<project-root>` (your local clone path)  
 **Method:** Read-only inspection via Python (`csv` stdlib and `pandas.read_csv`). The source file was not modified, renamed, or copied for profiling.
 
 ---

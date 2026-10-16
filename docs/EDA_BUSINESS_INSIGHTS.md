@@ -143,7 +143,7 @@ Large populations drive the top opportunities; high rates in smaller bands (e.g.
 **Prerequisites:** `.env` configured; `ChurnIntel` populated; `PYTHONPATH=src`.
 
 ```powershell
-cd "E:\Projects\AI-Powered Customer Churn Prediction & Retention Intelligence"
+cd <project-root>
 $env:PYTHONPATH = "src"
 
 # Export SQL EDA results to data/processed/sql_eda/
@@ -153,7 +153,7 @@ python scripts/run_sql_eda.py
 python -m churn_intel.analytics
 
 # Tests
-python -m pytest -v
+python -m pytest -m "not integration" -v
 ```
 
 **SQL scripts:** `sql/analytics/eda/01_overall_churn_kpis.sql` … `09_retention_opportunity_ranking.sql`

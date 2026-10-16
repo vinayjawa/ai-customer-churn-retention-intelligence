@@ -2,7 +2,7 @@
 
 **Version:** Phase 1 (planning only)  
 **Last updated:** 2026-10-14  
-**Python environment (inspected):** 3.14.7 (`C:\Users\admin\AppData\Local\Python\pythoncore-3.14-64\python.exe`)
+**Python environment (planning note):** 3.14.x (see `requirements.txt` for dependency ranges)
 
 ---
 

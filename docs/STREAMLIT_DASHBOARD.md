@@ -5,10 +5,12 @@
 ## Launch
 
 ```powershell
-cd "E:\Projects\AI-Powered Customer Churn Prediction & Retention Intelligence"
+cd <project-root>
 $env:PYTHONPATH = "src"
 python -m streamlit run src/churn_intel/dashboard/app.py
 ```
+
+See also [DASHBOARD_GUIDE.md](DASHBOARD_GUIDE.md) and [SETUP_GUIDE.md](SETUP_GUIDE.md).
 
 Stop with `Ctrl+C` in the terminal.
 
@@ -38,14 +40,14 @@ Stop with `Ctrl+C` in the terminal.
 3. Deduplicates by `customerID` within that batch if needed.
 4. Warns if batch size differs from the expected 7,043 customer snapshot.
 
-**Verified (2026-10-14):** one batch at `2026-10-14 10:36:21 UTC`, 7,043 rows, version `baseline_logistic_v1`.
+**Example (prior local run):** one score batch with 7,043 rows and model version `baseline_logistic_v1`. Confirm your environment with `python scripts/inspect_scores.py` when SQL is available.
 
 ## Threshold semantics
 
 | Concept | Definition |
 |---------|------------|
 | **Predicted churn label** | `churn_probability >= 0.5` (model threshold) |
-| **High-risk flag (retention)** | `churn_probability >= 75th percentile` within the scored population (~**0.701**, **1,761** customers at last verification) |
+| **High-risk flag (retention)** | `churn_probability >= 75th percentile` within the scored population (threshold and count depend on the latest score batch) |
 
 High-risk is **not** the same as the 0.5 classification threshold.
 

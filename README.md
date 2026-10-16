@@ -1,174 +1,182 @@
 # AI-Powered Customer Churn Prediction & Retention Intelligence
 
-Portfolio-grade end-to-end analytics and machine learning project for **telco customer churn**: SQL Server data platform, Python EDA, baseline classification, SHAP explainability, retention intelligence, and a Streamlit demo dashboard.
+End-to-end portfolio project: **SQL Server** data platform, **Python** analytics and machine learning, **SHAP** explainability, rule-based **retention intelligence**, and a **Streamlit** dashboard for telco-style customer churn.
 
-**Status:** Phases 1–6 implemented; Phase 7 quality audit completed (see consistency checks below).
+> Local demonstration — not production deployment, not proven ROI, not real-time scoring.
 
----
-
-## Problem and motivation
-
-Customer churn erodes recurring revenue. This project demonstrates how a data team can:
-
-1. Land and validate customer data in **Microsoft SQL Server**.
-2. Explore churn drivers with **SQL and Python**.
-3. Train and compare **baseline ML models** on a curated analytics table.
-4. Explain predictions with **SHAP** (associational, not causal).
-5. Prioritize retention outreach with **transparent rules** (no fabricated ROI).
-6. Present results in an **interactive dashboard** for stakeholders.
-
-This is a **local portfolio demonstration**, not a production deployment.
+**Quick links:** [Documentation index](docs/README.md) · [Setup](docs/SETUP_GUIDE.md) · [SQL scripts](docs/SQL_GUIDE.md) · [Python modules](docs/PYTHON_GUIDE.md) · [Architecture](docs/ARCHITECTURE.md)
 
 ---
 
-## Architecture and data flow
+## Business problem and motivation
 
-```mermaid
-flowchart LR
-  CSV[Kaggle CSV local copy] -->|ingest| STG[(stg.telco_customer_churn)]
-  STG -->|validate + type| AN[(analytics.customer)]
-  AN -->|EDA SQL/Python| INS[Insights and plots]
-  AN -->|train| ML[Baseline ML pipeline]
-  ML --> ART[Model artifacts]
-  ART --> SHAP[SHAP explainability]
-  ART --> SCORE[Batch scoring]
-  SCORE --> MLSC[(ml.customer_churn_score)]
-  SCORE --> RET[Retention summaries]
-  AN --> DASH[Streamlit dashboard]
-  MLSC --> DASH
-  INS --> DASH
-  SHAP --> DASH
-  RET --> DASH
-```
+Churn reduces recurring revenue. Teams need to understand historical churn patterns, estimate risk on the current base, explain model drivers (carefully), and prioritize outreach — with reproducible SQL + Python workflows.
 
-**Schemas:** `stg`, `analytics`, `ml`, `retention` (see `sql/ddl/`).
+## Business objectives
 
----
+| Objective | Deliverable in this repo |
+|-----------|---------------------------|
+| Governed customer data | Validated ingest → `analytics.customer` |
+| Segment insight | SQL EDA + Python EDA |
+| Predictive baseline | Three models; logistic regression selected |
+| Transparency | Global SHAP (log-odds) |
+| Actionable lists | High-risk flag + recommendation rules |
+| Stakeholder demo | Six-page Streamlit dashboard (read-only) |
+
+## Key features (implemented)
+
+- CSV validation and **append-only** staging history
+- Analytics mart refresh with **reject table** for bad rows
+- Nine SQL EDA scripts + Python EDA plots
+- Baseline **Dummy / Logistic Regression / Random Forest** comparison
+- Batch scoring to **`ml.customer_churn_score`** (append-only) + CSV
+- Retention analysis at **75th percentile** risk threshold
+- Dashboard KPIs separating **observed churn**, **predicted churn @ 0.5**, and **high-risk**
 
 ## Technology stack
 
-| Layer | Tools |
-|-------|--------|
+| Area | Tools |
+|------|--------|
 | Database | Microsoft SQL Server, T-SQL |
 | Connectivity | SQLAlchemy, pyodbc, ODBC Driver 18 |
-| Python | 3.14+ (3.11+ compatible), pandas, scikit-learn |
-| Explainability | SHAP (`LinearExplainer` for logistic regression) |
-| Visualization | Matplotlib, Seaborn, Plotly, Streamlit |
-| Testing | pytest |
+| Python | 3.11+ (developed on 3.14), pandas, scikit-learn |
+| Explainability | SHAP (`LinearExplainer`) |
+| Viz / UI | Matplotlib, Seaborn, Plotly, Streamlit |
+| Tests | pytest |
 
----
+## System architecture
 
-## Dataset (not redistributed)
+```mermaid
+flowchart LR
+  CSV[data/raw CSV] --> ING[ingestion]
+  ING --> STG[(stg)]
+  ING --> AN[(analytics.customer)]
+  AN --> EDA[SQL + Python EDA]
+  AN --> TRAIN[modeling]
+  TRAIN --> ART[artifacts/models]
+  ART --> SHAP[explain]
+  ART --> SCORE[scoring]
+  SCORE --> ML[(ml.customer_churn_score)]
+  SCORE --> RETCSV[retention CSVs]
+  AN --> DASH[Streamlit]
+  ML --> DASH
+  ART --> DASH
+  SHAP --> DASH
+  RETCSV --> DASH
+```
 
-IBM Telco Customer Churn from Kaggle — **not committed** to Git.
+Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
-1. Download from [Kaggle: Telco Customer Churn](https://www.kaggle.com/datasets/blastchar/telco-customer-churn).
-2. Copy to `data/raw/WA_Fn-UseC_-Telco-Customer-Churn.csv`.
-3. Do not commit raw CSV, `.env`, or local `data/processed/` outputs.
+## Dashboard screenshot gallery
 
-**Verified snapshot (SQL `analytics.customer`, audit 2026-10-14):**
+Static captures of the six Streamlit pages (for portfolio viewers; paths work on GitHub if these files are committed):
 
-| Metric | Value |
-|--------|--------|
-| Customers | 7,043 |
-| Observed churn Yes / No | 1,869 / 5,174 |
-| Historical churn rate | 26.54% |
-| NULL `TotalCharges` (tenure=0 pattern) | 11 |
+| Page | Screenshot |
+|------|------------|
+| Executive Overview | [docs/screenshots/01-executive-overview.png](docs/screenshots/01-executive-overview.png) |
+| Churn Analytics | [docs/screenshots/02-churn-analytics.png](docs/screenshots/02-churn-analytics.png) |
+| Churn Risk | [docs/screenshots/03-churn-risk.png](docs/screenshots/03-churn-risk.png) |
+| Model Performance | [docs/screenshots/04-model-performance.png](docs/screenshots/04-model-performance.png) |
+| SHAP Explainability | [docs/screenshots/05-shap-explainability.png](docs/screenshots/05-shap-explainability.png) |
+| Retention Intelligence | [docs/screenshots/06-retention-intelligence.png](docs/screenshots/06-retention-intelligence.png) |
 
----
+Screenshots reflect a **past local run**; KPIs may differ if you reload data or rescore. Interactive behavior is not validated by PNGs alone.
 
-## Key EDA findings (associational)
+**EDA and SHAP plot files** from batch jobs live under `artifacts/eda/` and `artifacts/explainability/` (gitignored — regenerate with `python -m churn_intel.analytics` and `python -m churn_intel.explain` after setup).
 
-From [docs/EDA_BUSINESS_INSIGHTS.md](docs/EDA_BUSINESS_INSIGHTS.md) (SQL-backed):
+## Dataset
 
-- **Month-to-month** contracts: 42.7% observed churn (n=3,875).
-- **Tenure 0–12 months:** 47.4% observed churn (n=2,186).
-- **Electronic check** payment: 45.3% observed churn (n=2,365).
-- **Fiber optic** internet: 41.9% observed churn (n=3,096).
+IBM Telco Customer Churn ([Kaggle](https://www.kaggle.com/datasets/blastchar/telco-customer-churn)) — **not redistributed**. Place at `data/raw/WA_Fn-UseC_-Telco-Customer-Churn.csv`.
 
-These describe historical patterns in the sample — **not causal effects**.
+Profile: [docs/DATASET_PROFILE.md](docs/DATASET_PROFILE.md). Reference counts from saved model metadata (`artifacts/models/baseline_model_metadata.json`, local file): **7,043** customers; **26.54%** churn prevalence; **11** blank `TotalCharges` at tenure 0.
 
----
+## SQL Server data model
 
-## Baseline modeling (held-out test set)
+| Schema | Role |
+|--------|------|
+| `stg` | Raw ingested batches |
+| `analytics` | Curated `customer` mart + `dq_load_reject` |
+| `ml` | `model_registry`, append-only `customer_churn_score` |
+| `retention` | Schema reserved; Phase 5 outputs primarily CSV |
 
-Trained from `analytics.customer` with stratified 80/20 split (`random_state=42`).
+Script inventory: [docs/SQL_GUIDE.md](docs/SQL_GUIDE.md) · [sql/README.md](sql/README.md)
 
-| Model | Accuracy | Precision (churn) | Recall (churn) | F1 | ROC-AUC | PR-AUC |
-|-------|----------|-------------------|----------------|-----|---------|--------|
-| Dummy (stratified) | 0.622 | 0.289 | 0.291 | 0.290 | 0.516 | 0.272 |
-| **Logistic Regression (balanced)** | **0.740** | **0.507** | **0.783** | **0.616** | **0.843** | **0.659** |
-| Random Forest (balanced) | 0.777 | 0.572 | 0.634 | 0.602 | 0.825 | 0.608 |
+## Machine learning workflow
 
-**Selected model:** Logistic Regression — highest **PR-AUC** on the test set (important for imbalanced churn). Higher **recall** (0.783) vs Random Forest with lower precision — a conscious trade-off for flagging at-risk customers at threshold **0.5**.
+1. Load mart from SQL → stratified 80/20 split (`seed=42`).
+2. Preprocess numeric + categorical → **46** encoded features.
+3. Compare three baselines; select **logistic_regression_balanced** by test **PR-AUC 0.659**.
+4. Save pipeline to `artifacts/models/`.
+5. Optional: SHAP global explain → `artifacts/explainability/`.
+6. Optional: batch score → SQL + CSV.
 
-Artifacts: `artifacts/models/baseline_churn_pipeline.joblib`, `artifacts/evaluation/baseline_metrics_comparison.csv`.
+Full detail: [docs/MODEL_DOCUMENTATION.md](docs/MODEL_DOCUMENTATION.md)
 
-Report: [docs/BASELINE_MODEL_REPORT.md](docs/BASELINE_MODEL_REPORT.md)
+## Model evaluation (held-out test)
 
----
+| Model | PR-AUC | ROC-AUC | Recall (churn) | Precision (churn) |
+|-------|--------|---------|----------------|-------------------|
+| Dummy stratified | 0.272 | 0.516 | 0.291 | 0.289 |
+| **Logistic regression** | **0.659** | **0.843** | **0.783** | **0.507** |
+| Random forest | 0.608 | 0.825 | 0.634 | 0.572 |
 
-## SHAP and retention (Phase 5)
+Source: `artifacts/evaluation/baseline_metrics_comparison.csv` (local artifact; rounded to three decimals in the table above).
 
-- **SHAP scale:** log-odds for churn class; **46** encoded features aligned with the fitted pipeline.
-- Top global |SHAP| features (executed): tenure, TotalCharges, MonthlyCharges, month-to-month contract, fiber optic.
-- **High-risk retention rule:** predicted probability ≥ **75th percentile** (~**0.701**, **1,761** customers in last verified run) — **separate** from the **0.5** model label threshold.
-- Recommendations are **hypotheses** for testing; ROI/CLV **not** estimated.
+## Explainability (SHAP)
 
-Docs: [docs/SHAP_EXPLAINABILITY_REPORT.md](docs/SHAP_EXPLAINABILITY_REPORT.md), [docs/RETENTION_INTELLIGENCE.md](docs/RETENTION_INTELLIGENCE.md)
+Global SHAP for the selected linear model; **log-odds** scale; feature count aligned with pipeline (**46**). Association only — not causal. [docs/SHAP_EXPLAINABILITY_REPORT.md](docs/SHAP_EXPLAINABILITY_REPORT.md)
 
----
+## Retention intelligence
 
-## Dashboard (Phase 6)
+- **High-risk:** probability ≥ 75th percentile within scored population (separate from **0.5** label threshold).
+- Rule-based recommendations for high-risk profiles only (contract, tenure, security, support, payment).
+- [docs/RETENTION_INTELLIGENCE.md](docs/RETENTION_INTELLIGENCE.md)
 
-Six pages: Executive Overview, Churn Analytics (observed churn), Churn Risk (predicted + high-risk), Model Performance, SHAP, Retention Intelligence.
+## Dashboard
+
+Six pages: Executive Overview, Churn Analytics, Churn Risk, Model Performance, SHAP, Retention Intelligence.
 
 ```powershell
 $env:PYTHONPATH = "src"
 python -m streamlit run src/churn_intel/dashboard/app.py
 ```
 
-Details: [docs/STREAMLIT_DASHBOARD.md](docs/STREAMLIT_DASHBOARD.md). **Read-only** — no training or score writes on startup.
+Guide: [docs/DASHBOARD_GUIDE.md](docs/DASHBOARD_GUIDE.md)
 
----
+## Project structure
 
-## Setup
+```text
+├── README.md                 # This file
+├── requirements.txt
+├── .env.example              # Safe template (copy to .env)
+├── docs/                     # Guides + phase reports
+├── sql/                      # DDL, DML, analytics SQL
+├── src/churn_intel/          # Application package
+├── tests/                    # pytest unit + integration
+├── scripts/                  # SQL EDA runner, diagnostics
+├── data/raw|processed/       # Local data (gitignored)
+└── artifacts/                # Models, metrics, plots (gitignored)
+```
+
+There is no separate `reports/` folder; reports live under `docs/` and `artifacts/evaluation/`.
+
+## Installation and execution
+
+See **[docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md)** for virtualenv, `.env`, database creation, and commands.
+
+Minimal path:
 
 ```powershell
 cd <project-root>
 python -m pip install -r requirements.txt
 copy .env.example .env
-# Edit .env: CHURN_DB_SERVER, CHURN_DB_NAME=ChurnIntel, CHURN_DB_AUTH=windows, etc.
-```
-
-Create database once in SSMS: `CREATE DATABASE ChurnIntel;`
-
-Connection test:
-
-```powershell
+# edit .env — use your server name, not a shared credential
 $env:PYTHONPATH = "src"
 python -m churn_intel.connection_check
+python -m streamlit run src/churn_intel/dashboard/app.py
 ```
 
----
-
-## Reproducible commands (by phase)
-
-| Step | Command | DB side effects |
-|------|---------|-----------------|
-| Validate CSV | `python -c "..."` (see `docs/DATASET_PROFILE.md`) | None |
-| Ingest | `python -m churn_intel.ingestion` | Appends staging batch; refreshes `analytics.customer` |
-| SQL EDA export | `python scripts/run_sql_eda.py` | Read-only |
-| Python EDA | `python -m churn_intel.analytics` | Read-only |
-| Train baselines | `python -m churn_intel.modeling` | Read-only |
-| SHAP global | `python -m churn_intel.explain` | Read-only |
-| Batch score | `python -m churn_intel.scoring` | **Appends** `ml.customer_churn_score` rows |
-| Retention | `python -m churn_intel.retention` | Read-only |
-| Dashboard | `python -m streamlit run src/churn_intel/dashboard/app.py` | Read-only |
-
-Set `$env:PYTHONPATH = "src"` for all Python module commands.
-
----
+**Commands that write data** (run intentionally): `churn_intel.ingestion`, `churn_intel.scoring`, `churn_intel.modeling`, `churn_intel.explain`, `churn_intel.retention`, `churn_intel.analytics`.
 
 ## Tests
 
@@ -176,62 +184,41 @@ Set `$env:PYTHONPATH = "src"` for all Python module commands.
 python -m pytest -m "not integration" -v
 ```
 
-**Phase 7 run:** 28 passed, 1 deselected (integration).
+Integration tests append staging batches when enabled. [tests/README.md](tests/README.md)
 
-Integration test (`CHURN_DB_INTEGRATION=1`) runs full ingestion and **appends a staging batch** — use intentionally:
+## Current limitations
 
-```powershell
-$env:CHURN_DB_INTEGRATION = "1"
-python -m pytest -m integration -v
-```
+- Single snapshot dataset; no temporal validation.
+- Append-only score history requires “latest batch” logic in the dashboard.
+- SHAP and metrics are precomputed artifacts, not live on every refresh.
+- Retention recommendations are hypotheses, not A/B tested interventions.
+- SQL required for customer mart; scores can fall back to CSV.
 
----
+## Future improvements (not implemented)
 
-## Output locations
+- Time-based validation and monitoring hooks
+- Persist retention summaries in `retention` schema tables
+- CI with dockerized SQL or mocked DB layer
+- Refresh `docs/screenshots/` after major dashboard changes
 
-| Content | Path |
-|---------|------|
-| EDA plots | `artifacts/eda/` |
-| Model + metadata | `artifacts/models/` |
-| Evaluation metrics | `artifacts/evaluation/` |
-| SHAP plots/CSV | `artifacts/explainability/` |
-| Processed tables/CSVs | `data/processed/` (gitignored) |
-| Reports | `docs/` |
+## Privacy and data handling
 
----
+- `.gitignore` excludes `.env`, raw/processed data, `artifacts/`, and root CSV.
+- Do not commit customer-level exports or secrets.
+- Review [data/README.md](data/README.md) before any public upload.
 
-## Privacy and Git hygiene
+## Documentation map
 
-`.gitignore` excludes: `.env`, `data/raw/`, `data/processed/`, `*.csv` (except under `docs/`), `artifacts/`, `*.joblib`.
-
-Do **not** commit customer-level score CSVs or credentials. Dashboard default views omit `customerID`.
-
-**Git:** not detected on PATH in Phase 7 audit; no repository initialized in this project folder. Initialize Git locally before manual GitHub review.
-
----
-
-## Known limitations
-
-- Sample telco dataset; associations ≠ causation.
-- Not production-hardened (monitoring, auth, SLAs, MLOps).
-- Append-only score history requires **latest timestamp** selection in the dashboard.
-- SHAP artifacts are precomputed (log-odds); live SHAP not recomputed on each dashboard refresh.
-- Re-running ingestion/scoring/integration tests mutates staging/score history.
+| Guide | Topic |
+|-------|--------|
+| [docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md) | Executive summary |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Data flow and schemas |
+| [docs/SQL_GUIDE.md](docs/SQL_GUIDE.md) | All SQL files |
+| [docs/PYTHON_GUIDE.md](docs/PYTHON_GUIDE.md) | Modules and CLI |
+| [docs/MODEL_DOCUMENTATION.md](docs/MODEL_DOCUMENTATION.md) | ML details |
+| [docs/DASHBOARD_GUIDE.md](docs/DASHBOARD_GUIDE.md) | UI and KPIs |
+| [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | Common fixes |
 
 ---
-
-## Documentation index
-
-- [docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md)
-- [docs/DATASET_PROFILE.md](docs/DATASET_PROFILE.md)
-- [docs/EDA_BUSINESS_INSIGHTS.md](docs/EDA_BUSINESS_INSIGHTS.md)
-- [docs/BASELINE_MODEL_REPORT.md](docs/BASELINE_MODEL_REPORT.md)
-- [docs/SHAP_EXPLAINABILITY_REPORT.md](docs/SHAP_EXPLAINABILITY_REPORT.md)
-- [docs/RETENTION_INTELLIGENCE.md](docs/RETENTION_INTELLIGENCE.md)
-- [docs/STREAMLIT_DASHBOARD.md](docs/STREAMLIT_DASHBOARD.md)
-
----
-
-## License
 
 Portfolio / educational use. Respect Kaggle dataset terms. No affiliation with IBM or Kaggle implied.
